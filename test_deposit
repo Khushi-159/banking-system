@@ -1,0 +1,28 @@
+import pytest
+from selenium import webdriver
+from pages.login_page import LoginPage
+from pages.deposit_page import DepositPage
+from utils import config
+from selenium.webdriver.common.by import By
+import time
+
+@pytest.fixture()
+def setup():
+    driver = webdriver.Chrome()
+    driver.get(config.BASE_URL)
+    driver.maximize_window()
+    yield driver
+    driver.quit()
+
+def test_deposit_amount(setup):
+    driver = setup
+    login_page = LoginPage(driver)
+    login_page.login(config.Uid, config.password)
+    deposit_link = driver.find_element(By.LINK_TEXT, "Deposit")
+    deposit_link.click()
+    deposit_page = DepositPage(driver)
+    deposit_page.deposit("12345", "5000", "Test deposit")
+
+    time.sleep(5)
+
+    assert "Transaction details of Deposit for Account" in driver.page_source
