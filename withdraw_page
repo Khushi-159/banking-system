@@ -1,0 +1,18 @@
+from selenium.webdriver.common.by import By
+class WithdrawPage:
+    def __init__(self, driver):
+        self.driver = driver
+        self.withdraw_link = (By.LINK_TEXT, "Withdrawal")
+        self.account_no_input = (By.NAME, "accountno")
+        self.amount_input = (By.NAME, "ammount")
+        self.description_input = (By.NAME, "desc")
+        self.submit_button = (By.NAME, "AccSubmit")
+
+    def open_withdraw_page(self):
+        self.driver.find_element(*self.withdraw_link).click()
+
+    def withdraw(self, account_no, amount, description):
+        self.driver.find_element(*self.account_no_input).send_keys(account_no)
+        self.driver.find_element(*self.amount_input).send_keys(amount)
+        self.driver.find_element(*self.description_input).send_keys(description)
+        self.driver.find_element(*self.submit_button).click()
