@@ -1,0 +1,36 @@
+import pytest
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoAlertPresentException
+from pages.login_page import LoginPage
+from pages.logout_page import LogoutPage
+from utils import config
+
+
+@pytest.fixture()
+def setup():
+    driver = webdriver.Chrome()
+    driver.get(config.BASE_URL)
+    driver.maximize_window()
+    yield driver
+    driver.quit()
+def test_logout(setup):
+    driver = setup
+
+    login_page = LoginPage(driver)
+    login_page.login(config.Uid, config.password)
+    assert "Guru99 Bank Manager HomePage" in driver.title
+
+    logout_page = LogoutPage(driver)
+    logout_page.click_logout()
+
+    try:
+        WebDriverWait(driver, 5).until(EC.alert_is_present())
+        alert = driver.switch_to.alert
+        alert_text = alert.text
+        alert.accept()
+        assert "You Have Succesfully Logged Out!!" in alert_text
+    except TimeoutException:
+        print(" No alert appeared after logout.")
+    assert "Guru99 Bank" in driver.title
