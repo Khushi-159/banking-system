@@ -1,0 +1,31 @@
+import pytest
+from selenium import webdriver
+from pages.login_page import LoginPage
+from pages.delete_page import DeleteCustomerPage
+from utils import config
+import time
+
+@pytest.fixture()
+def setup(request):
+    driver = webdriver.Chrome()
+    driver.get(config.BASE_URL)
+    driver.maximize_window()
+    request.cls.driver = driver
+    yield driver
+    driver.quit()
+
+@pytest.mark.usefixtures("setup")
+class TestDeleteCustomer:
+
+    def test_delete_customer(self):
+        login_page = LoginPage(self.driver)
+        login_page.login(config.Uid, config.password)
+        assert "Guru99 Bank Manager HomePage" in self.driver.title
+        delete_page = DeleteCustomerPage(self.driver)
+        delete_page.open_delete_customer_page()
+        alert_text = delete_page.delete_customer("12345")
+        delete_page.click()
+        assert "Do you really want to delete this Customer?" in alert_text or \
+               "Customer deleted Successfully" in alert_text
+        time.sleep(9)
+        assert "Guru99 Bank Manager HomePage" in self.driver.title
