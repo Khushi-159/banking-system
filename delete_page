@@ -1,0 +1,23 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.alert import Alert
+class DeleteCustomerPage:
+    def __init__(self, driver):
+        self.driver = driver
+        # Locator for "Delete Customer" link on menu
+        self.delete_customer_link = (By.LINK_TEXT, "Delete Customer")
+        # Locator for Customer ID input
+        self.customer_id_input = (By.NAME, "cusid")
+        # Locator for Submit button
+        self.submit_button = (By.NAME, "submit")
+
+    def open_delete_customer_page(self):
+        self.driver.find_element(*self.delete_customer_link).click()
+
+    def delete_customer(self, customer_id):
+        self.driver.find_element(*self.customer_id_input).send_keys(customer_id)
+        self.driver.find_element(*self.submit_button).click()
+        # Handle alert (confirmation)
+        alert = self.driver.switch_to.alert
+        alert_text = alert.text
+        alert.accept()
+        return alert_text
