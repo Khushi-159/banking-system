@@ -1,0 +1,44 @@
+import pytest
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from pages.login_page import LoginPage
+from pages.withdraw_page import WithdrawPage
+from pages.logout_page import LogoutPage
+from utils import config
+from selenium import webdriver
+
+@pytest.fixture()
+def setup(request):
+    driver = webdriver.Chrome()
+    driver.get(config.BASE_URL)
+    driver.maximize_window()
+    request.cls.driver = driver
+    yield driver
+    driver.quit()
+
+@pytest.mark.usefixtures("setup")
+class TestWithdraw:
+    def test_withdraw(self):
+        login_page = LoginPage(self.driver)
+        login_page.login(config.Uid, config.password)
+        assert "Guru99 Bank Manager HomePage" in self.driver.title
+
+        withdraw_page = WithdrawPage(self.driver)
+        withdraw_page.open_withdraw_page()
+        withdraw_page.withdraw("123456", "1000", "ATM Withdrawal")
+
+        wait = WebDriverWait(self.driver, 10)
+        success_message = wait.until(EC.presence_of_element_located(
+            (By.XPATH, "//p[contains(text(),'Transaction details of Withdrawal for Account')]")
+        ))
+
+        assert "Transaction details of Withdrawal for Account" in success_message.text
+
+        logout_page = LogoutPage(self.driver)
+        logout_page.click_logout()
+        time.sleep(2)
+        alert = self.driver.switch_to.alert
+        alert.accept()
+        assert "Guru99 Bank" in self.driver.title
