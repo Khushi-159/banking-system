@@ -1,0 +1,19 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+class LogoutPage:
+    def __init__(self, driver):
+        self.driver = driver
+        self.logout_link = (By.LINK_TEXT, "Log out")
+
+    def click_logout(self):
+
+        wait = WebDriverWait(self.driver, 10)
+        logout_element = wait.until(EC.visibility_of_element_located(self.logout_link))
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", logout_element)
+        self.driver.execute_script("arguments[0].click();", logout_element)
+        alert = wait.until(EC.alert_is_present())
+        alert_text = alert.text
+        alert.accept()
+        return alert_text
